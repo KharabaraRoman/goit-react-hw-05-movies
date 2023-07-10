@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link, Outlet, useLocation } from 'react-router-dom';
+import { useParams, Link, Outlet, useLocation  } from 'react-router-dom';
 import { fetchMovieDetails } from 'components/services/TmbdApi';
 import Loader from 'components/Loader/Loader';
 import {
@@ -102,3 +102,6 @@ const MovieDetails = () => {
 };
 
 export default MovieDetails;
+
+
+

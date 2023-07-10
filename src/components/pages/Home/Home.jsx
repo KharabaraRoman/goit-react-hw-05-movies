@@ -3,6 +3,7 @@ import EditorList from '../EditorList/EditorList';
 import { fetchTrending } from 'components/services/TmbdApi';
 import Loader from 'components/Loader/Loader';
 
+
 const Home = () => {
   const [films, setFilms] = useState([]);
   const [loading, setLoading] = useState(false);
