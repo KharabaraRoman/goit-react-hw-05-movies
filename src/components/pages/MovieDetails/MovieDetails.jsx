@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link, Outlet, useLocation  } from 'react-router-dom';
-import { fetchMovieDetails } from 'components/services/TmbdApi';
+import { useParams, Link, Outlet, useLocation, useSearchParams } from 'react-router-dom';
+import { fetchMovieDetails,  } from 'components/services/TmbdApi';
 import Loader from 'components/Loader/Loader';
 import {
   Container,
@@ -15,6 +15,25 @@ const MovieDetails = () => {
   const [movieInfo, setMovieInfo] = useState(null);
   const [loading, setLoading] = useState(false);
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const queryParams = searchParams.get('query');
+
+  useEffect(() => {
+    if (!queryParams) {
+      return;
+    }
+
+    getMovieByQuery(queryParams)
+      .then(({ results }) => {
+        if (!results.length) {
+          const error = new Error(`No result containing ${queryParams} were found`);
+          throw error;
+        }
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }, [queryParams]);
 
   useEffect(() => {
     const fetchMovieDetailsFilms = () => {
@@ -25,7 +44,7 @@ const MovieDetails = () => {
           setMovieInfo(detailMovie);
         })
         .catch(error => {
-          console.log(error);
+          console.error(error);
         })
         .finally(() => {
           setLoading(false);
@@ -36,7 +55,7 @@ const MovieDetails = () => {
   }, [movieId]);
 
   if (!movieInfo) {
-    return;
+    return null;
   }
 
   const {
@@ -47,7 +66,7 @@ const MovieDetails = () => {
     genres,
     poster_path,
     original_title,
-  } = movieInfo || {};
+  } = movieInfo;
 
   return (
     <>
@@ -55,34 +74,31 @@ const MovieDetails = () => {
         <Button type="button">Go back</Button>
       </Link>
       {loading && <Loader />}
-
-      {movieInfo && (
-        <Container>
-          <img
-            width="300px"
-            src={
-              poster_path
-                ? `https://image.tmdb.org/t/p/w500${poster_path}`
-                : `https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg`
-            }
-            alt={original_title}
-          />
-          <div>
-            <h1>
-              {title} ({release_date.slice(0, 4)})
-            </h1>
-            <p>User score: {popularity}</p>
-            <h2>Overview</h2>
-            <p>{overview}</p>
-            <h2>Genres</h2>
-            <List>
-              {genres.map(genre => (
-                <li key={genre.id}>{genre.name}</li>
-              ))}
-            </List>
-          </div>
-        </Container>
-      )}
+      <Container>
+        <img
+          width="300px"
+          src={
+            poster_path
+              ? `https://image.tmdb.org/t/p/w500${poster_path}`
+              : `https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg`
+          }
+          alt={original_title}
+        />
+        <div>
+          <h1>
+            {title} ({release_date.slice(0, 4)})
+          </h1>
+          <p>User score: {popularity}</p>
+          <h2>Overview</h2>
+          <p>{overview}</p>
+          <h2>Genres</h2>
+          <List>
+            {genres.map(genre => (
+              <li key={genre.id}>{genre.name}</li>
+            ))}
+          </List>
+        </div>
+      </Container>
       <hr />
       <div>
         <h3>Additional information</h3>
@@ -102,6 +118,3 @@ const MovieDetails = () => {
 };
 
 export default MovieDetails;
-
-
-
